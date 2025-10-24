@@ -1,0 +1,177 @@
+:root {
+  --bg: #0b1020;
+  --card: #12192e;
+  --muted: #a0acc0;
+  --accent: #34d399;
+  --accent-2: #059669;
+  --white: #f7faff;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 50% -10%, #16213e, #0b1020);
+  color: var(--white);
+  font-family: "Inter", sans-serif;
+}
+
+/* --- Layout --- */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  min-height: 100vh;
+  padding-top: 2rem;
+  position: relative;
+}
+
+.header {
+  margin-bottom: 0.8rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* --- CAMERA --- */
+.top-right-video {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 220px;
+  height: 160px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow);
+}
+
+.top-right-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+/* --- PRESSURE BAR --- */
+.card {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.pressure-card {
+  width: 80%;
+  max-width: 500px;
+  margin: 1rem auto;
+}
+
+.pressure-bar {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.pressure-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 100ms linear;
+}
+
+.pressure-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* --- NOTES PILL --- */
+.notes-pill {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.note-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+/* --- KEYBOARD --- */
+.keyboard-card {
+  margin-top: 1rem;
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.keyboard-grid {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 1rem;
+}
+
+/* Keys */
+.key {
+  width: 45px;
+  height: 150px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f9fbff, #e4e9f4);
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  transition: all 0.1s ease;
+}
+
+.key .label-top {
+  position: absolute;
+  top: 6px;
+  font-size: 12px;
+  color: #4d5b78;
+}
+
+.key .label-bottom {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.key.black {
+  width: 30px;
+  height: 90px;
+  background: linear-gradient(180deg, #1a2238, #0f1426);
+  color: #e8eeff;
+  position: absolute;
+  z-index: 10;
+}
+
+.key.active {
+  transform: translateY(3px);
+  filter: brightness(0.9);
+}
