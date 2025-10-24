@@ -30,8 +30,3 @@ export function stopNote(note) {
   const now = Tone.now();
   synth.triggerRelease(now);
 }
-
-// Add to bottom of soundEngine.js temporarily:
-window.initAudio = initAudio;
-window.playNote = playNote;
-window.stopNote = stopNote;
