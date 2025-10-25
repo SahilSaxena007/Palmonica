@@ -1,99 +1,83 @@
 import React from "react";
 import "./styles.css";
 
-// Expect: props.keyMap (object char->note), props.activeKeys (Set of chars),
-// props.onKeyPress(keyChar), props.onKeyRelease(keyChar)
-
 export default function KeyboardUI({
   keyMap,
   activeKeys,
   onKeyPress,
   onKeyRelease,
 }) {
-  // White row (your mapping)
-  const whites = [
-    "q",
-    "w",
-    "e",
-    "r",
-    "t",
-    "y",
-    "u",
-    "i",
-    "o",
-    "p",
-    "[",
-    "]",
-    "\\",
+  // White keys ordered left → right
+  const whiteKeys = [
+    "a",
+    "s",
+    "d",
+    "f",
+    "g",
+    "h",
+    "j",
+    "z",
+    "x",
+    "c",
+    "v",
+    "b",
+    "n",
+    "m",
   ];
-
-  // Black keys positioned between specific whites (index refers to the white “gap”)
-  // Gaps (white index): between q-w -> 0, w-e ->1, e-r ->2, r-t ->3, y-u ->5, u-i ->6, i-o ->7
-  const blacks = [
-    { k: "1", gapIndex: 0 }, // between q & w
-    { k: "2", gapIndex: 1 }, // between w & e
-    { k: "4", gapIndex: 2 }, // between e & r
-    { k: "5", gapIndex: 3 }, // between r & t
-    { k: "7", gapIndex: 5 }, // between y & u
-    { k: "8", gapIndex: 6 }, // between u & i
-    { k: "9", gapIndex: 7 }, // between i & o
+  // Black keys with horizontal offsets matching white keys
+  const blackKeys = [
+    { key: "w", position: 0.7 },
+    { key: "e", position: 1.7 },
+    { key: "t", position: 3.7 },
+    { key: "y", position: 4.7 },
+    { key: "u", position: 5.7 },
+    { key: "r", position: 8.7 },
+    { key: "k", position: 11.7 },
+    { key: "l", position: 12.7 },
   ];
-
-  // Grid trick: 26 columns; whites at even columns, blacks at odd columns (centered over the gap)
-  const totalCols = 26;
-
-  const whiteCells = whites.map((k, i) => {
-    const note = keyMap[k];
-    const isActive = activeKeys.has(k);
-    // place at even columns: col = i*2 + 1, span 2
-    const gridColumn = `${i * 2 + 1} / span 2`;
-    return (
-      <div
-        key={k}
-        className={`key white ${isActive ? "active" : ""}`}
-        style={{ gridColumn }}
-        onMouseDown={() => onKeyPress(k)}
-        onMouseUp={() => onKeyRelease(k)}
-        onMouseLeave={() => isActive && onKeyRelease(k)}
-      >
-        <div className="label-top">{note}</div>
-        <div className="label-bottom">{k}</div>
-      </div>
-    );
-  });
-
-  const blackCells = blacks
-    .filter(({ k }) => keyMap[k]) // render only if mapped
-    .map(({ k, gapIndex }) => {
-      const note = keyMap[k];
-      const isActive = activeKeys.has(k);
-      // place at odd columns centered over the gap: col = gapIndex*2 + 2, span 2 (narrow)
-      const gridColumn = `${gapIndex * 2 + 2} / span 2`;
-      return (
-        <div
-          key={k}
-          className={`key black ${isActive ? "active" : ""}`}
-          style={{ gridColumn }}
-          onMouseDown={() => onKeyPress(k)}
-          onMouseUp={() => onKeyRelease(k)}
-          onMouseLeave={() => isActive && onKeyRelease(k)}
-        >
-          <div className="label-top">{note}</div>
-          <div className="label-bottom">{k}</div>
-        </div>
-      );
-    });
 
   return (
-    <div className="keyboard-card">
-      <div
-        className="keyboard-grid"
-        style={{ gridTemplateColumns: `repeat(${totalCols}, 1fr)` }}
-      >
-        {/* whites underneath */}
-        {whiteCells}
-        {/* blacks on top layer */}
-        <div className="black-layer">{blackCells}</div>
+    <div className="keyboard-wrapper">
+      {/* White keys */}
+      <div className="white-keys">
+        {whiteKeys.map((k) => {
+          const note = keyMap[k];
+          const isActive = activeKeys.has(k);
+          return (
+            <div
+              key={k}
+              className={`key white ${isActive ? "active" : ""}`}
+              onMouseDown={() => onKeyPress(k)}
+              onMouseUp={() => onKeyRelease(k)}
+              onMouseLeave={() => isActive && onKeyRelease(k)}
+            >
+              <span className="note">{note}</span>
+              <span className="kbd">{k.toUpperCase()}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Black keys overlay */}
+      <div className="black-keys">
+        {blackKeys.map(({ key, position }) => {
+          const note = keyMap[key];
+          if (!note) return null;
+          const isActive = activeKeys.has(key);
+          return (
+            <div
+              key={key}
+              className={`key black ${isActive ? "active" : ""}`}
+              style={{ left: `${position * 60}px` }}
+              onMouseDown={() => onKeyPress(key)}
+              onMouseUp={() => onKeyRelease(key)}
+              onMouseLeave={() => isActive && onKeyRelease(key)}
+            >
+              <span className="note">{note}</span>
+              <span className="kbd">{key.toUpperCase()}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
