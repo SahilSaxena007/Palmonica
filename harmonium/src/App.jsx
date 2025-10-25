@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { initAudio, playNote, stopNote } from "./audio/soundEngine";
 import { keyMap } from "./audio/keyMap";
 import { useHandTracking } from "./hooks/useHandTracking";
+import { useBreathTracking } from "./hooks/useBreathTracking";
 import KeyboardUI from "./components/KeyboardUI";
 import "./components/styles.css";
 
@@ -11,9 +12,15 @@ export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentNotes, setCurrentNotes] = useState([]);
   const [activeKeys, setActiveKeys] = useState(new Set());
-  const pressure = useHandTracking();
+  const [mode, setMode] = useState("hand"); // hand | breath | manual
 
-  // --- Press + Release Logic ---
+  // Tracking sources
+  const handPressure = useHandTracking(mode === "hand");
+  const breathPressure = useBreathTracking(mode === "breath");
+  const pressure =
+    mode === "hand" ? handPressure : mode === "breath" ? breathPressure : 1; // manual mode = full pressure
+
+  // Play & stop logic
   const pressKey = (keyChar) => {
     const k = keyChar.toLowerCase();
     const note = keyMap[k];
@@ -47,15 +54,14 @@ export default function App() {
     setCurrentNotes((prev) => prev.filter((n) => n !== note));
   };
 
-  // --- Keyboard Events ---
+  // Keyboard events
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.repeat) return;
       pressKey(e.key);
     };
-    const handleKeyUp = (e) => {
-      releaseKey(e.key);
-    };
+    const handleKeyUp = (e) => releaseKey(e.key);
+
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
     return () => {
@@ -64,7 +70,7 @@ export default function App() {
     };
   }, [activeKeys, pressure]);
 
-  // --- Stop sound when pressure drops ---
+  // Pressure-based decay
   useEffect(() => {
     if (pressure < PRESSURE_GATE && currentNotes.length > 0) {
       currentNotes.forEach((n) => stopNote(n));
@@ -74,20 +80,44 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
-      {/* CAMERA */}
-      <div className="top-right-video card">
-        <video id="input_video" autoPlay playsInline muted />
-      </div>
+      {/* Camera */}
+      {mode === "hand" && (
+        <div className="top-right-video card">
+          <video id="input_video" autoPlay playsInline muted />
+        </div>
+      )}
 
-      {/* TITLE */}
+      {/* Header */}
       <div className="header">
         <h1 className="title">🎶 Palmonica</h1>
         <p className="subtitle">
-          Air-Controlled Harmonium — Play with your keyboard and hand movement
+          Air-Controlled Harmonium — switch between Hand, Breath, or Manual
         </p>
       </div>
 
-      {/* PRESSURE */}
+      {/* Mode Toggle */}
+      <div className="mode-toggle">
+        <button
+          className={mode === "hand" ? "active" : ""}
+          onClick={() => setMode("hand")}
+        >
+          ✋ Hand Tracking
+        </button>
+        <button
+          className={mode === "breath" ? "active" : ""}
+          onClick={() => setMode("breath")}
+        >
+          💨 Breath Tracking
+        </button>
+        <button
+          className={mode === "manual" ? "active" : ""}
+          onClick={() => setMode("manual")}
+        >
+          🎹 Manual
+        </button>
+      </div>
+
+      {/* Pressure Bar */}
       <div className="card pressure-card">
         <div className="pressure-bar">
           <div
@@ -101,7 +131,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* KEYBOARD */}
+      {/* Keyboard */}
       <KeyboardUI
         keyMap={keyMap}
         activeKeys={activeKeys}
@@ -109,7 +139,7 @@ export default function App() {
         onKeyRelease={releaseKey}
       />
 
-      {/* ACTIVE NOTES */}
+      {/* Active Notes */}
       {currentNotes.length > 0 && (
         <div className="notes-pill">
           {currentNotes.map((n) => (
@@ -120,7 +150,7 @@ export default function App() {
         </div>
       )}
 
-      {/* STATUS */}
+      {/* Load Status */}
       <p
         style={{
           color: isLoaded ? "#34d399" : "#a0acc0",
